@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			   xmlns:s="library://ns.adobe.com/flex/spark" 
+			   xmlns:mx="library://ns.adobe.com/flex/mx" width="320" height="300"
+			   initialize="init();">
+	
+	<fx:Script>
+		<![CDATA[
+			import flash.media.Camera;
+			
+			import mx.controls.Alert;
+			
+			import org.smkw.ClockUpdater;
+			import org.smkw.WebCameraView;
+
+			private var webCameraView:WebCameraView;
+			private var timer:Timer;
+			private var clockUpdater:ClockUpdater;
+			
+			private function init():void {
+				clockUpdater = new ClockUpdater(1000, updateClock);
+				webCameraView = new WebCameraView(320, 240);
+				try {
+					videoPane.addElement(webCameraView);
+				} catch (e:Error) {
+					Alert.show(e.toString(), "test", Alert.OK);					
+				}
+			}
+			
+			protected function startButton_clickHandler(event:MouseEvent):void
+			{
+				webCameraView.startRecording();
+				startButton.enabled = false;
+				stopButton.enabled = true;
+				clockUpdater.start();
+			}
+			
+			private function updateClock(milliseconds:int):void {
+				label.text = "" + int(milliseconds / 1000);
+			}
+			
+			protected function stopButton_clickHandler(event:MouseEvent):void
+			{
+				webCameraView.stopRecording();
+				stopButton.enabled = false;
+				startButton.enabled = true;
+				clockUpdater.stop();
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<fx:Style>
+		@namespace s "library://ns.adobe.com/flex/spark";
+		@namespace mx "library://ns.adobe.com/flex/mx";
+		
+		.hoge {
+			backgroundColor: #ff0000;
+		}
+	</fx:Style>
+	
+	<fx:Declarations>
+		<!-- 非ビジュアルエレメント (サービス、値オブジェクトなど) をここに配置 -->
+	</fx:Declarations>
+
+	<s:layout>
+		<s:VerticalLayout />
+	</s:layout>
+	
+	<s:VGroup id="videoPane" width="320" height="240">
+		</s:VGroup>
+	<s:HGroup width="320" height="60">
+		<s:Button id="startButton" label="Start" click="startButton_clickHandler(event)" />
+		<s:Button id="stopButton" label="Stop" click="stopButton_clickHandler(event)" enabled="false" />
+		<mx:VRule height="28"/>
+		<s:Label id="label" width="84" height="24" fontFamily="Arial" fontSize="20" text="0"/>
+	</s:HGroup>
+</s:Application>
