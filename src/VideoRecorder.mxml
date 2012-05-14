@@ -51,9 +51,6 @@
 	</fx:Script>
 	
 	<fx:Style>
-		@namespace s "library://ns.adobe.com/flex/spark";
-		@namespace mx "library://ns.adobe.com/flex/mx";
-		
 		.hoge {
 			backgroundColor: #ff0000;
 		}
@@ -64,15 +61,16 @@
 	</fx:Declarations>
 
 	<s:layout>
-		<s:VerticalLayout />
+		<s:VerticalLayout gap="0"/>
 	</s:layout>
 	
 	<s:VGroup id="videoPane" width="320" height="240">
 		</s:VGroup>
-	<s:HGroup width="320" height="60">
+	<s:HGroup width="320" height="60" gap="6">
 		<s:Button id="startButton" label="Start" click="startButton_clickHandler(event)" />
 		<s:Button id="stopButton" label="Stop" click="stopButton_clickHandler(event)" enabled="false" />
-		<mx:VRule height="28"/>
-		<s:Label id="label" width="84" height="24" fontFamily="Arial" fontSize="20" text="0"/>
+		<s:Spacer width="20" height="10"/>
+		<s:Label id="label" width="84" height="24" fontFamily="Arial" fontSize="20" text="0"
+				 textAlign="right"/>
 	</s:HGroup>
 </s:Application>
