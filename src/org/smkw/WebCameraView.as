@@ -21,15 +21,22 @@ package org.smkw
 		private var video:Video;
 		private var ns:NetStream;
 		private var nc:NetConnection;
+		private var videoName:String = "video";
 		
-		public function WebCameraView(width:int, height:int)
+		/**
+		 *	bandwidth: Bytes per second
+		 * 	quality: 1 - 100
+		 *  bandwidthを指定する際はqualityを0、qualityを指定する際はbandwidthを0とする。 
+		 */
+		public function WebCameraView(width:int, height:int, bandwidth:int, quality:int)
 		{
 			setActualSize(width, height);
 
 			camera = Camera.getCamera();
 			if (camera != null) {
 				camera.setMode(width, height, 30);
-				video = new Video(camera.width, camera.height);
+				camera.setQuality(bandwidth, quality);
+				video = new Video(width, height);
 				video.attachCamera(camera);
 				addChild(video);
 			}
@@ -78,7 +85,7 @@ package org.smkw
 				if (mic != null) {
 					ns.attachAudio(mic);
 				}
-				ns.publish("test", "record"); 				
+				ns.publish(videoName, "record"); 				
 			}
 		}
 		
@@ -116,6 +123,11 @@ package org.smkw
 				ns.attachAudio(null);
 				ns = null;
 			}
+		}
+		
+		public function setVideoName(recordId:String):void
+		{
+			videoName = recordId;
 		}
 	}
 }

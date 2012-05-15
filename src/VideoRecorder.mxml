@@ -1,25 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
-<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009" 
-			   xmlns:s="library://ns.adobe.com/flex/spark" 
-			   xmlns:mx="library://ns.adobe.com/flex/mx" width="320" height="300"
-			   initialize="init();">
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009"
+			   xmlns:s="library://ns.adobe.com/flex/spark"
+			   xmlns:mx="library://ns.adobe.com/flex/mx"
+			   width="320" height="300" creationComplete="initParams();" initialize="initViews();"
+			   height.Recording="270"
+			   height.State1="270">
 	
 	<fx:Script>
 		<![CDATA[
 			import flash.media.Camera;
-			
 			import mx.controls.Alert;
-			
+			import mx.core.FlexGlobals;
 			import org.smkw.ClockUpdater;
 			import org.smkw.WebCameraView;
 
 			private var webCameraView:WebCameraView;
 			private var timer:Timer;
 			private var clockUpdater:ClockUpdater;
+			private var timeLimit:int = 0;
+			private var recordId:String = "video";
 			
-			private function init():void {
+			private function initViews():void {
 				clockUpdater = new ClockUpdater(1000, updateClock);
-				webCameraView = new WebCameraView(320, 240);
+				webCameraView = new WebCameraView(320, 240, 0, 90);
 				try {
 					videoPane.addElement(webCameraView);
 				} catch (e:Error) {
@@ -27,24 +30,39 @@
 				}
 			}
 			
+			private function initParams():void {
+				var frashvars:Object = FlexGlobals.topLevelApplication.parameters;
+				timeLimit = frashvars.timeLimit == null ? 30 : int(frashvars.timeLimit);
+				recordId = frashvars.id == null ? recordId : frashvars.id;
+				webCameraView.setVideoName(recordId);
+			}
+			
 			protected function startButton_clickHandler(event:MouseEvent):void
 			{
 				webCameraView.startRecording();
-				startButton.enabled = false;
-				stopButton.enabled = true;
 				clockUpdater.start();
+				currentState = 'Recording';
 			}
 			
 			private function updateClock(milliseconds:int):void {
-				label.text = "" + int(milliseconds / 1000);
+				var t:int = int(milliseconds / 1000);
+				label.text = "" + t;
+				if (timeLimit > 0 && t >= timeLimit) {
+					// timeout!
+					stopRecording();
+				}
 			}
 			
 			protected function stopButton_clickHandler(event:MouseEvent):void
 			{
+				stopRecording();
+			}
+			
+			private function stopRecording():void
+			{
 				webCameraView.stopRecording();
-				stopButton.enabled = false;
-				startButton.enabled = true;
 				clockUpdater.stop();
+				currentState = 'State1';
 			}
 			
 		]]>
@@ -55,6 +73,10 @@
 			backgroundColor: #ff0000;
 		}
 	</fx:Style>
+	<s:states>
+		<s:State name="State1"/>
+		<s:State name="Recording"/>
+	</s:states>
 	
 	<fx:Declarations>
 		<!-- 非ビジュアルエレメント (サービス、値オブジェクトなど) をここに配置 -->
@@ -66,11 +88,19 @@
 	
 	<s:VGroup id="videoPane" width="320" height="240">
 		</s:VGroup>
-	<s:HGroup width="320" height="60" gap="6">
-		<s:Button id="startButton" label="Start" click="startButton_clickHandler(event)" />
-		<s:Button id="stopButton" label="Stop" click="stopButton_clickHandler(event)" enabled="false" />
+	<s:HGroup width="320" height="60" gap="6"
+			  height.Recording="30"
+			  height.State1="23">
+		<s:Button id="startButton" label="Start" click="startButton_clickHandler(event)"
+				  height.Recording="30" enabled.Recording="false" fontSize.Recording="16"
+				  height.State1="30" fontSize.State1="16"/>
+		<s:Button id="stopButton" label="Stop" click="stopButton_clickHandler(event)" enabled="false"
+				  height.Recording="30" enabled.Recording="true" fontSize.Recording="16"
+				  height.State1="30" fontSize.State1="16"/>
 		<s:Spacer width="20" height="10"/>
 		<s:Label id="label" width="84" height="24" fontFamily="Arial" fontSize="20" text="0"
-				 textAlign="right"/>
+				 textAlign="right"
+				 height.Recording="30" fontSize.Recording="32" verticalAlign.Recording="middle"
+				 height.State1="30" fontSize.State1="32" verticalAlign.State1="middle"/>
 	</s:HGroup>
 </s:Application>
